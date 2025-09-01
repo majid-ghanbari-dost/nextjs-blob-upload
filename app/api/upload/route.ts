@@ -3,19 +3,21 @@ import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
   try {
+    console.log("دریافت درخواست...");
     const formData = await request.formData();
     const file = formData.get('file') as File;
 
     if (!file) {
+      console.error("فایلی ارسال نشده");
       return NextResponse.json({ error: 'فایلی ارسال نشده است' }, { status: 400 });
     }
 
-    // آپلود فایل به Vercel Blob Storage
+    console.log("آپلود فایل:", file.name);
     const blob = await put(file.name, file, {
       access: 'public',
     });
 
-    // برگرداندن اطلاعات فایل آپلود شده
+    console.log("آپلود موفق:", blob.url);
     return NextResponse.json({
       url: blob.url,
       name: blob.pathname,
@@ -24,9 +26,9 @@ export async function POST(request: Request) {
       uploaded: true
     });
     
-  } catch (error) {
-    console.error('Error uploading file:', error);
-    return NextResponse.json({ error: 'خطا در آپلود فایل' }, { status: 500 });
+  } catch (error: any) {
+    console.error('خطای کامل:', error);
+    return NextResponse.json({ error: 'خطا در آپلود فایل: ' + error.message }, { status: 500 });
   }
 }
 
